@@ -1,12 +1,27 @@
+"use client";
+
 import Image from "next/image";
 import { FaFacebook, FaInstagram, FaTwitter, FaTiktok } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 const Footer = () => {
   return (
     <footer className="px-4 pt-8 pb-7 max-w-334 mx-auto">
       {/* Newsletter Banner */}
-      <div className="bg-primary rounded-3xl md:rounded-t-[48px] mb-0 px-4 sm:px-18 pt-4 sm:pt-16 pb-28 flex flex-col md:flex-row items-center justify-between gap-8">
-        <div className="w-full md:w-1/2">
+      <motion.div
+        className="bg-primary rounded-3xl md:rounded-t-[48px] mb-0 px-4 sm:px-18 pt-4 sm:pt-16 pb-28 flex flex-col md:flex-row items-center justify-between gap-8"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.6 }}
+      >
+        <motion.div
+          className="w-full md:w-1/2"
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
           <h2 className="text-white font-semibold text-[32px] md:text-5xl uppercase leading-tight mb-3">
             Join our KicksPlus <br /> Club &amp; get 15% off
           </h2>
@@ -19,13 +34,22 @@ const Footer = () => {
               placeholder="Email address"
               className="flex-1 bg-transparent border border-background text-foreground text-sm px-4 py-2.5 rounded-lg outline-none placeholder:text-gray-400 font-openSans"
             />
-            <button className="bg-foreground text-white text-sm font-medium uppercase tracking-widest px-5 py-[11px] rounded-lg hover:bg-black transition-colors">
+            <motion.button
+              className="bg-foreground text-white text-sm font-medium uppercase tracking-widest px-5 py-[11px] rounded-lg hover:bg-black transition-colors"
+              whileTap={{ scale: 0.95 }}
+            >
               Submit
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="w-full md:w-1/2 flex justify-start md:justify-center">
+        <motion.div
+          className="w-full md:w-1/2 flex justify-start md:justify-center"
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
           <Image
             src="/logo_white.png"
             alt="Kicks Logo"
@@ -33,11 +57,17 @@ const Footer = () => {
             height={400}
             className="object-contain h-[61px] w-[200px] md:h-[112px] md:w-[367px]"
           />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Main Footer */}
-      <div className="bg-foreground rounded-3xl md:rounded-[48px] -mt-16 px-4 md:px-10 md:pr-12 pt-4 md:pt-10 pb-40 md:pb-60 relative overflow-hidden">
+      <motion.div
+        className="bg-foreground rounded-3xl md:rounded-[48px] -mt-16 px-4 md:px-10 md:pr-12 pt-4 md:pt-10 pb-40 md:pb-60 relative overflow-hidden"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, amount: 0.1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
         <div className="flex flex-col md:flex-row gap-10 md:gap-20">
           {/* About */}
           <div className="w-full md:w-[38%]">
@@ -141,7 +171,13 @@ const Footer = () => {
         </div>
 
         {/* Large watermark logo */}
-        <div className="absolute md:-bottom-18 inset-x-0 h-64 md:h-76.5">
+        <motion.div
+          className="absolute md:-bottom-18 inset-x-0 h-64 md:h-76.5"
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay: 0.3 }}
+        >
           <Image
             src="/logo_white.png"
             alt=""
@@ -150,8 +186,8 @@ const Footer = () => {
             className="object-contain w-full h-full"
             aria-hidden="true"
           />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       <div className="text-center pt-4">© All rights reserved 2024</div>
     </footer>

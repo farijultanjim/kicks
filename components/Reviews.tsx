@@ -1,20 +1,37 @@
+"use client";
+
 import Button from "./Button";
 import Image from "next/image";
 import { FaStar } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 export default function Reviews() {
   return (
     <div className="py-32 px-4 max-w-334 mx-auto">
-      <div className="flex items-end justify-between mb-8">
+      <motion.div
+        className="flex items-end justify-between mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
         <h2 className="text-2xl md:text-[74px] font-semibold max-w-150 leading-[95%] md:uppercase">
           Reviews
         </h2>
         <Button>See all</Button>
-      </div>
+      </motion.div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
-        <ReviewCard />
-        <ReviewCard />
-        <ReviewCard />
+        {[0, 1, 2].map((index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+          >
+            <ReviewCard />
+          </motion.div>
+        ))}
       </div>
     </div>
   );
@@ -30,12 +47,17 @@ const ReviewCard = ({
   avatarAlt = "Reviewer",
 }) => {
   return (
-    <div className="bg-white rounded-3xl overflow-hidden w-89.5 md:w-106 max-h-[339px] md:max-h-[500px] shadow-sm flex flex-col">
+    <motion.div
+      className="bg-white rounded-3xl overflow-hidden w-89.5 md:w-106 max-h-[339px] md:max-h-[500px] shadow-sm flex flex-col"
+      transition={{ type: "spring", stiffness: 300 }}
+    >
       {/* Top content area */}
       <div className="p-4 md:p-8 flex flex-col gap-2">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
-            <h3 className="text-foreground font-semibold text-xl md:text-2xl mb-1">{title}</h3>
+            <h3 className="text-foreground font-semibold text-xl md:text-2xl mb-1">
+              {title}
+            </h3>
             <p className="text-foreground text-sm md:text-[16px] font-openSans leading-snug">
               {review}
             </p>
@@ -73,6 +95,6 @@ const ReviewCard = ({
           className="object-cover"
         />
       </div>
-    </div>
+    </motion.div>
   );
 };
