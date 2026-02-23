@@ -51,7 +51,7 @@ const Footer = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <Image
-            src="/logo_white.png"
+            src="/Logo_white.png"
             alt="Kicks Logo"
             width={400}
             height={400}
@@ -179,7 +179,7 @@ const Footer = () => {
           transition={{ duration: 1, delay: 0.3 }}
         >
           <Image
-            src="/logo_white.png"
+            src="/Logo_white.png"
             alt=""
             width={1080}
             height={1080}
@@ -189,7 +189,7 @@ const Footer = () => {
         </motion.div>
       </motion.div>
 
-      <div className="text-center pt-4">© All rights reserved 2024</div>
+      <div className="text-center pt-4">© All rights reserved</div>
     </footer>
   );
 };

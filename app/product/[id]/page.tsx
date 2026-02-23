@@ -7,6 +7,7 @@ import { FaHeart } from "react-icons/fa";
 import MayLikeProducts from "@/components/MayLikeProducts";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppContext } from "@/context/AppContext";
+import { useRouter } from "next/navigation";
 
 interface Product {
   id: number;
@@ -42,7 +43,8 @@ export default function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = React.use(params);
-  const { setCurrentCategory } = useAppContext();
+  const router = useRouter();
+  const { setCurrentCategory, addToCart } = useAppContext();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -70,6 +72,27 @@ export default function ProductPage({
 
     fetchProduct();
   }, [id, setCurrentCategory]);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    const cartItem = {
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      image: product.images[0] || "/11.png",
+      quantity: 1,
+      selectedSize: sizes[selectedSize],
+      selectedColor: colors[selectedColor].name,
+    };
+
+    addToCart(cartItem);
+  };
+
+  const handleBuyNow = () => {
+    handleAddToCart();
+    router.push("/cart");
+  };
 
   if (loading) {
     return (
@@ -266,6 +289,7 @@ export default function ProductPage({
             <motion.button
               className="flex-1 bg-foreground text-white font-medium text-sm uppercase tracking-wide py-4 rounded-lg hover:bg-foreground/90 transition-colors"
               whileTap={{ y: 0 }}
+              onClick={handleAddToCart}
             >
               ADD TO CART
             </motion.button>
@@ -279,7 +303,9 @@ export default function ProductPage({
           </div>
 
           {/* Static - Buy It Now Button */}
-          <Button className="w-full mb-6">BUY IT NOW</Button>
+          <Button className="w-full mb-6" onClick={handleBuyNow}>
+            BUY IT NOW
+          </Button>
 
           {/* About the Product */}
           <div>

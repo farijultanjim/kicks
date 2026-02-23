@@ -3,32 +3,35 @@
 import MayLikeProducts from "@/components/MayLikeProducts";
 import Image from "next/image";
 import { FaHeart, FaTrash } from "react-icons/fa";
-import { useState } from "react";
 import { motion } from "framer-motion";
-
-const cartItems = [
-  {
-    id: 1,
-    name: "DROPSET TRAINER SHOES",
-    description: "Men's Road Running Shoes",
-    color: "Enamel Blue/ University White",
-    size: 10,
-    quantity: 1,
-    price: 130.0,
-    image: "/11.png",
-  },
-];
+import { useAppContext } from "@/context/AppContext";
 
 export default function CartPage() {
-  const [items, setItems] = useState(cartItems);
+  const { cart, updateQuantity, removeFromCart, getCartTotal } =
+    useAppContext();
 
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
-  const delivery = 6.99;
+  const subtotal = getCartTotal();
+  const delivery = cart.length > 0 ? 6.99 : 0;
   const salesTax = 0;
   const total = subtotal + delivery + salesTax;
+
+  if (cart.length === 0) {
+    return (
+      <motion.div
+        className="flex flex-col items-center justify-center min-h-[60vh] px-8 max-w-334 mx-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="text-2xl md:text-4xl font-semibold mb-4">
+          Your cart is empty
+        </h2>
+        <p className="text-foreground/60 mb-8">
+          Add some products to get started!
+        </p>
+      </motion.div>
+    );
+  }
 
   return (
     <>
@@ -72,7 +75,7 @@ export default function CartPage() {
 
             {/* cart items */}
             <div className="space-y-4">
-              {items.map((item, index) => (
+              {cart.map((item, index) => (
                 <motion.div
                   key={item.id}
                   className=" "
@@ -85,7 +88,7 @@ export default function CartPage() {
                     <div className="w-[155px] md:w-52 h-56 bg-white rounded-2xl overflow-hidden flex-shrink-0">
                       <Image
                         src={item.image}
-                        alt={item.name}
+                        alt={item.title}
                         width={128}
                         height={128}
                         className="object-cover w-full h-full"
@@ -97,14 +100,13 @@ export default function CartPage() {
                       <div className="flex flex-col md:flex-row justify-between items-start mb-2">
                         <div>
                           <h3 className="text-foreground font-semibold text-base md:text-2xl uppercase">
-                            {item.name}
+                            {item.title}
                           </h3>
-                          <p className="text-foreground text-sm md:text-xl font-semibold font-openSans">
-                            {item.description}
-                          </p>
-                          <p className="text-foreground text-sm md:text-xl font-semibold font-openSans">
-                            {item.color}
-                          </p>
+                          {item.selectedColor && (
+                            <p className="text-foreground text-sm md:text-xl font-semibold font-openSans">
+                              Color: {item.selectedColor}
+                            </p>
+                          )}
                         </div>
                         <div className="text-primary font-bold text-xl md:text-2xl">
                           ${item.price.toFixed(2)}
@@ -113,11 +115,13 @@ export default function CartPage() {
 
                       {/* Size and Quantity */}
                       <div className="flex gap-4 mb-4 mt-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold">
-                            Size {item.size}
-                          </span>
-                        </div>
+                        {item.selectedSize && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold">
+                              Size {item.selectedSize}
+                            </span>
+                          </div>
+                        )}
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-semibold">
                             Quantity {item.quantity}
@@ -137,6 +141,7 @@ export default function CartPage() {
                           className="text-foreground/60 hover:text-foreground"
                           whileTap={{ y: 1 }}
                           transition={{ duration: 0.5 }}
+                          onClick={() => removeFromCart(item.id)}
                         >
                           <FaTrash className="w-5 h-5" />
                         </motion.button>
@@ -161,7 +166,7 @@ export default function CartPage() {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="font-openSans">
-                    {items.length} ITEM{items.length !== 1 ? "S" : ""}
+                    {cart.length} ITEM{cart.length !== 1 ? "S" : ""}
                   </span>
                   <span className="font-semibold">${subtotal.toFixed(2)}</span>
                 </div>

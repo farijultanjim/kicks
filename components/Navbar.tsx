@@ -4,9 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAppContext } from "@/context/AppContext";
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { getCartCount } = useAppContext();
 
   return (
     <header className="px-4 pt-8 pb-6 max-w-334 mx-auto">
@@ -112,7 +114,7 @@ export default function Navbar() {
               whileTap={{ y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              0
+              {getCartCount()}
             </motion.div>
           </Link>
         </div>
