@@ -18,6 +18,8 @@ interface Category {
 export default function Categories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 2;
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -26,11 +28,8 @@ export default function Categories() {
           "https://api.escuelajs.co/api/v1/categories",
         );
         const data = await response.json();
-        // Filter for only Clothes (id: 1) and Shoes (id: 4)
-        const filtered = data.filter(
-          (cat: Category) => cat.id === 1 || cat.id === 4,
-        );
-        setCategories(filtered);
+        // Show all categories
+        setCategories(data);
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
@@ -40,6 +39,23 @@ export default function Categories() {
 
     fetchCategories();
   }, []);
+
+  const totalPages = Math.ceil(categories.length / itemsPerPage);
+  const startIndex = currentPage * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentCategories = categories.slice(startIndex, endIndex);
+
+  const handlePrevious = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   return (
     <motion.div
@@ -72,16 +88,20 @@ export default function Categories() {
               <motion.button
                 type="button"
                 title="Previous"
-                className="bg-[#E7E7E3] rounded-lg px-2 md:px-3 py-2 md:py-3"
+                className="bg-[#E7E7E3] rounded-lg px-2 md:px-3 py-2 md:py-3 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 whileTap={{ x: 0, rotate: 0 }}
+                onClick={handlePrevious}
+                disabled={currentPage === 0}
               >
                 <RiArrowLeftSLine />
               </motion.button>
               <motion.button
                 type="button"
                 title="Next"
-                className="bg-white rounded-lg px-2 md:px-3 py-2 md:py-3"
+                className="bg-white rounded-lg px-2 md:px-3 py-2 md:py-3 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 whileTap={{ x: 0, rotate: 0 }}
+                onClick={handleNext}
+                disabled={currentPage === totalPages - 1 || loading}
               >
                 <RiArrowRightSLine />
               </motion.button>
@@ -97,7 +117,7 @@ export default function Categories() {
                 <div className="h-[348px] md:h-[600px] w-full bg-[#F6F6F6] relative overflow-hidden animate-pulse" />
               </>
             ) : (
-              categories.map((category, index) => (
+              currentCategories.map((category, index) => (
                 <motion.div
                   key={category.id}
                   className={`h-[348px] md:h-[600px] w-full ${
@@ -105,10 +125,10 @@ export default function Categories() {
                       ? "bg-[#ECEEF0] rounded-tl-[64px]"
                       : "bg-[#F6F6F6]"
                   } relative overflow-hidden`}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.1 + index * 0.2 }}
+                  initial={{ opacity: 0, x: index === 0 ? -40 : 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: index === 0 ? -40 : 40 }}
+                  transition={{ duration: 0.5 }}
                 >
                   <Image
                     src={category.image}

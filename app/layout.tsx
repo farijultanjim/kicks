@@ -3,6 +3,7 @@ import { Rubik, Open_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { AppProvider } from "@/context/AppContext";
 
 const rubik = Rubik({
   variable: "--font-rubik",
@@ -29,9 +30,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${rubik.variable} ${openSans.variable} antialiased `}>
-        <Navbar />
-        {children}
-        <Footer />
+        <AppProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </AppProvider>
       </body>
     </html>
   );

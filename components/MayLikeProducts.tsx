@@ -1,20 +1,61 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAppContext } from "@/context/AppContext";
 
-const products = Array.from({ length: 16 }, (_, i) => ({
-  id: i + 1,
-  // Add your product data here
-}));
+interface Product {
+  id: number;
+  title: string;
+  slug: string;
+  price: number;
+  description: string;
+  category: {
+    id: number;
+    name: string;
+    slug: string;
+    image: string;
+    creationAt: string;
+    updatedAt: string;
+  };
+  images: string[];
+  creationAt: string;
+  updatedAt: string;
+}
 
 const PRODUCTS_PER_PAGE = 4;
-const TOTAL_PAGES = Math.ceil(products.length / PRODUCTS_PER_PAGE);
 
 function MayLikeProducts() {
+  const { currentCategory } = useAppContext();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
+
+  useEffect(() => {
+    const fetchCategoryProducts = async () => {
+      if (!currentCategory) return;
+
+      try {
+        setLoading(true);
+        // Fetch all products from the category
+        const response = await fetch(
+          `https://api.escuelajs.co/api/v1/categories/${currentCategory.id}/products`,
+        );
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error("Error fetching category products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategoryProducts();
+  }, [currentCategory]);
+
+  const TOTAL_PAGES = Math.ceil(products.length / PRODUCTS_PER_PAGE);
 
   const handlePrevious = () => {
     setCurrentPage((prev) => (prev > 0 ? prev - 1 : TOTAL_PAGES - 1));
@@ -28,6 +69,33 @@ function MayLikeProducts() {
     currentPage * PRODUCTS_PER_PAGE,
     (currentPage + 1) * PRODUCTS_PER_PAGE,
   );
+
+  if (!currentCategory || loading) {
+    return (
+      <div className="pb-32 px-4 max-w-334 mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div className="h-12 w-48 bg-gray-200 rounded animate-pulse" />
+          <div className="flex gap-2">
+            <div className="h-10 w-10 bg-gray-200 rounded animate-pulse" />
+            <div className="h-10 w-10 bg-gray-200 rounded animate-pulse" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="space-y-4">
+              <div className="w-full h-[180px] md:h-[350px] bg-gray-200 rounded-2xl animate-pulse" />
+              <div className="h-6 bg-gray-200 rounded animate-pulse" />
+              <div className="h-12 bg-gray-200 rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (products.length === 0) {
+    return null; // Don't show section if no products
+  }
 
   return (
     <div className="pb-32 px-4 max-w-334 mx-auto">
@@ -78,7 +146,13 @@ function MayLikeProducts() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
             >
-              <ProductCard />
+              <ProductCard
+                image={product.images[0] || "/11.png"}
+                name={product.title}
+                price={product.price}
+                href={`/product/${product.id}`}
+                isNew={false}
+              />
             </motion.div>
           ))}
         </motion.div>

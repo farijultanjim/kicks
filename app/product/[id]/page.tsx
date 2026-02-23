@@ -1,25 +1,105 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Button from "@/components/Button";
 import { FaHeart } from "react-icons/fa";
 import MayLikeProducts from "@/components/MayLikeProducts";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAppContext } from "@/context/AppContext";
 
-const productImages = ["/11.png", "/hero.png", "/11.png", "/hero.png"];
+interface Product {
+  id: number;
+  title: string;
+  slug: string;
+  price: number;
+  description: string;
+  category: {
+    id: number;
+    name: string;
+    slug: string;
+    image: string;
+    creationAt: string;
+    updatedAt: string;
+  };
+  images: string[];
+  creationAt: string;
+  updatedAt: string;
+}
 
+// Static data - Colors are not available from API
 const colors = [
   { name: "Black", value: "#232321" },
   { name: "Green", value: "#4A5947" },
 ];
 
+// Static data - Sizes are not available from API
 const sizes = [38, 39, 40, 41, 42, 43, 44, 45, 46, 47];
 
-export default function ProductPage() {
+export default function ProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = React.use(params);
+  const { setCurrentCategory } = useAppContext();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(
+          `https://api.escuelajs.co/api/v1/products/${id}`,
+        );
+        const data = await response.json();
+        setProduct(data);
+        // Set the current category in context for MayLikeProducts
+        if (data.category) {
+          setCurrentCategory(data.category);
+        }
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id, setCurrentCategory]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col md:flex-row items-start gap-4 px-4 max-w-334 mx-auto min-h-screen">
+        <div className="md:rounded-[48px] w-full md:w-2/3 h-96 bg-gray-200 animate-pulse" />
+        <div className="w-full md:w-1/3 space-y-4">
+          <div className="h-8 bg-gray-200 rounded animate-pulse" />
+          <div className="h-12 bg-gray-200 rounded animate-pulse" />
+          <div className="h-8 bg-gray-200 rounded animate-pulse w-1/3" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-xl">Product not found</p>
+      </div>
+    );
+  }
+
+  // to fill the ui with 4 images, if less than 4 images are provided by the API, we will fill the remaining slots with a placeholder image
+  const productImages =
+    product.images.length > 0
+      ? [
+          ...product.images.slice(0, 4),
+          ...Array(Math.max(0, 4 - product.images.length)).fill("/11.png"),
+        ]
+      : Array(4).fill("/11.png");
 
   return (
     <>
@@ -59,7 +139,7 @@ export default function ProductPage() {
 
             {/* Thumbnail selector */}
             <div className="flex gap-2 mt-4">
-              {productImages.slice(0, 4).map((img, index) => (
+              {productImages.map((img, index) => (
                 <motion.button
                   key={index}
                   onClick={() => setSelectedImage(index)}
@@ -109,24 +189,27 @@ export default function ProductPage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          {/* New Release Badge */}
+          {/* Static - New Release Badge */}
           <div className="inline-block bg-primary text-white text-xs font-semibold px-4 py-2 md:py-3 rounded-lg md:rounded-xl mb-4">
             New Release
           </div>
 
           {/* Product Title */}
           <h1 className="text-foreground font-semibold text-xl md:text-[32px] uppercase mb-4 leading-tight">
-            ADIDAS 4DFWD X PARLEY RUNNING SHOES
+            {product.title}
           </h1>
 
           {/* Price */}
-          <div className="text-primary font-bold text-2xl mb-6">$125.00</div>
+          <div className="text-primary font-bold text-2xl mb-6">
+            ${product.price.toFixed(2)}
+          </div>
 
           {/* Color Selection */}
           <div className="mb-6">
             <h3 className="text-foreground font-bold text-sm uppercase mb-3">
               COLOR
             </h3>
+            {/* Static - Color options not available from API */}
             <div className="flex gap-2">
               {colors.map((color, index) => (
                 <motion.button
@@ -153,10 +236,12 @@ export default function ProductPage() {
               <h3 className="text-foreground font-bold text-[16px] md:uppercase">
                 SIZE
               </h3>
+              {/* Static - Size chart link */}
               <button className="text-foreground/60 text-sm font-semibold hover:text-foreground">
                 SIZE CHART
               </button>
             </div>
+            {/* Static - Size options not available from API */}
             <div className="flex flex-wrap gap-1.5">
               {sizes.map((size, index) => (
                 <motion.button
@@ -176,7 +261,7 @@ export default function ProductPage() {
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Static - Action Buttons */}
           <div className="flex gap-2 mb-2">
             <motion.button
               className="flex-1 bg-foreground text-white font-medium text-sm uppercase tracking-wide py-4 rounded-lg hover:bg-foreground/90 transition-colors"
@@ -193,7 +278,7 @@ export default function ProductPage() {
             </motion.button>
           </div>
 
-          {/* Buy It Now Button */}
+          {/* Static - Buy It Now Button */}
           <Button className="w-full mb-6">BUY IT NOW</Button>
 
           {/* About the Product */}
@@ -201,9 +286,15 @@ export default function ProductPage() {
             <h3 className="text-foreground font-semibold text-[16px] uppercase mb-3">
               ABOUT THE PRODUCT
             </h3>
+            {/* Product Description */}
             <p className="text-[#232321] text-[16px] mb-5 font-openSans">
-              Shadow Navy / Army Green
+              {product.description}
             </p>
+            {/* Product Category */}
+            <p className="text-[#232321] text-[16px] mb-3 font-openSans font-semibold">
+              Category: {product.category.name}
+            </p>
+            {/* Static - Promotional and payment info not available from API */}
             <p className="text-[#232321] text-[16px] mb-3 font-openSans">
               This product is excluded from all promotional discounts and
               offers.
